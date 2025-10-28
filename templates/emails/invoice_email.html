@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .invoice-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .invoice-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .invoice-details {
+            display: table;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .invoice-row {
+            display: table-row;
+        }
+        .invoice-label {
+            display: table-cell;
+            padding: 8px 0;
+            color: #666;
+            width: 40%;
+        }
+        .invoice-value {
+            display: table-cell;
+            padding: 8px 0;
+            font-weight: bold;
+        }
+        .total {
+            font-size: 20px;
+            color: #2563eb;
+        }
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📄 Nouvelle Facture</h1>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour <strong>{{ client_name }}</strong>,</p>
+        
+        <p>Vous trouverez ci-joint la facture <strong>{{ invoice_number }}</strong> d'un montant de <strong>{{ total }}€ TTC</strong>.</p>
+        
+        <div class="invoice-box">
+            <div class="invoice-number">{{ invoice_number }}</div>
+            
+            <div class="invoice-details">
+                <div class="invoice-row">
+                    <div class="invoice-label">Date d'émission :</div>
+                    <div class="invoice-value">{{ issue_date }}</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Date d'échéance :</div>
+                    <div class="invoice-value">{{ due_date }}</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Montant HT :</div>
+                    <div class="invoice-value">{{ subtotal }}€</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">TVA ({{ tax_rate }}%) :</div>
+                    <div class="invoice-value">{{ tax_amount }}€</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Total TTC :</div>
+                    <div class="invoice-value total">{{ total }}€</div>
+                </div>
+            </div>
+        </div>
+        
+        {% if notes %}
+        <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <strong>Notes :</strong>
+            <p style="margin: 10px 0 0 0;">{{ notes }}</p>
+        </div>
+        {% endif %}
+        
+        <p style="margin-top: 30px;">La facture est jointe à cet email au format PDF.</p>
+        
+        <p>Pour toute question, n'hésitez pas à me contacter.</p>
+        
+        <p style="margin-top: 30px;">
+            Cordialement,<br>
+            <strong>{{ freelance_name }}</strong><br>
+            {{ freelance_email }}
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>Cet email a été envoyé automatiquement par FactureSnap</p>
+        <p>© {% now "Y" %} FactureSnap - Facturation simple pour freelances</p>
+    </div>
+</body>
+</html>

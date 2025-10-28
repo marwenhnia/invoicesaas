@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - FactureSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-user-plus text-blue-600"></i> {{ title }}
+        </h1>
+    </div>
+
+    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nom du client *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                {{ form.phone }}
+            </div>
+            
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Adresse *</label>
+                {{ form.address }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Code postal *</label>
+                {{ form.postal_code }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ville *</label>
+                {{ form.city }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Pays *</label>
+                {{ form.country }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
+                {{ form.siret }}
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center pt-4">
+            <a href="{% url 'core:client_list' %}" class="text-gray-600 hover:text-gray-900 font-medium">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

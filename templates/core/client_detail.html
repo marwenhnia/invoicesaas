@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ client.name }} - FactureSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-user text-blue-600"></i> {{ client.name }}
+            </h1>
+            <p class="text-gray-600 mt-2">Informations et factures du client</p>
+        </div>
+        
+        <div class="flex gap-3">
+            <a href="{% url 'core:client_edit' client.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <button onclick="if(confirm('Supprimer ce client ?')) window.location.href='{% url 'core:client_delete' client.id %}'" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- Informations client -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Coordonnées -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-address-card text-blue-600"></i> Coordonnées
+            </h2>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-600">Email</p>
+                    <p class="font-semibold">{{ client.email }}</p>
+                </div>
+                {% if client.phone %}
+                <div>
+                    <p class="text-sm text-gray-600">Téléphone</p>
+                    <p class="font-semibold">{{ client.phone }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Adresse -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                <i class="fas fa-map-marker-alt text-blue-600"></i> Adresse
+            </h2>
+            <div class="text-gray-700">
+                <p>{{ client.address }}</p>
+                <p>{{ client.postal_code }} {{ client.city }}</p>
+                <p>{{ client.country }}</p>
+            </div>
+            {% if client.siret %}
+            <div class="mt-4 pt-4 border-t">
+                <p class="text-sm text-gray-600">SIRET</p>
+                <p class="font-semibold">{{ client.siret }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg shadow p-6 mb-8">
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div>
+                <p class="text-3xl font-bold text-blue-600">{{ invoices.count }}</p>
+                <p class="text-gray-600">Facture{{ invoices.count|pluralize }}</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-green-600">{{ paid_count }}</p>
+                <p class="text-gray-600">Payée{{ paid_count|pluralize }}</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-yellow-600">{{ pending_count }}</p>
+                <p class="text-gray-600">En attente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des factures -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">
+                <i class="fas fa-file-invoice text-blue-600"></i> Factures
+            </h2>
+            <a href="{% url 'core:invoice_create' %}?client={{ client.id }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-plus"></i> Nouvelle facture
+            </a>
+        </div>
+
+        {% if invoices %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numéro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Échéance</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for invoice in invoices %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap font-medium">{{ invoice.invoice_number }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.issue_date|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ invoice.due_date|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold">{{ invoice.total }} €</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if invoice.status == 'paid' %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle"></i> Payée
+                            </span>
+                            {% elif invoice.status == 'sent' %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-clock"></i> Envoyée
+                            </span>
+                            {% elif invoice.status == 'overdue' %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-exclamation-triangle"></i> En retard
+                            </span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                <i class="fas fa-edit"></i> Brouillon
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                            <a href="{% url 'core:invoice_detail' invoice.id %}" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'core:invoice_pdf' invoice.id %}" target="_blank" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500 mb-4">Aucune facture pour ce client</p>
+            <a href="{% url 'core:invoice_create' %}?client={{ client.id }}" class="text-blue-600 hover:text-blue-700 font-medium">
+                Créer la première facture
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Retour -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'core:client_list' %}" class="text-gray-600 hover:text-gray-900 font-medium">
+            <i class="fas fa-arrow-left"></i> Retour à la liste des clients
+        </a>
+    </div>
+</div>
+{% endblock %}

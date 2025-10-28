@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .alert-box {
+            background: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-box strong {
+            color: #dc2626;
+            font-size: 18px;
+        }
+        .invoice-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .invoice-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        .invoice-details {
+            display: table;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .invoice-row {
+            display: table-row;
+        }
+        .invoice-label {
+            display: table-cell;
+            padding: 8px 0;
+            color: #666;
+            width: 50%;
+        }
+        .invoice-value {
+            display: table-cell;
+            padding: 8px 0;
+            font-weight: bold;
+        }
+        .total {
+            font-size: 22px;
+            color: #dc2626;
+        }
+        .overdue-badge {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            background: #dc2626;
+            color: white;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .urgent {
+            color: #dc2626;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="warning-icon">⚠️</div>
+        <h1>Relance de Paiement</h1>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour <strong>{{ client_name }}</strong>,</p>
+        
+        <div class="alert-box">
+            <strong>Votre facture est en retard de paiement</strong>
+            <div class="overdue-badge">{{ days_overdue }} jour{{ days_overdue|pluralize }} de retard</div>
+        </div>
+        
+        <p>Nous vous rappelons que la facture <strong>{{ invoice_number }}</strong> était due le <strong class="urgent">{{ due_date }}</strong> et nous n'avons pas encore reçu votre paiement.</p>
+        
+        <div class="invoice-box">
+            <div class="invoice-number">{{ invoice_number }}</div>
+            
+            <div class="invoice-details">
+                <div class="invoice-row">
+                    <div class="invoice-label">Date d'émission :</div>
+                    <div class="invoice-value">{{ issue_date }}</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Date d'échéance :</div>
+                    <div class="invoice-value urgent">{{ due_date }}</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Montant à régler :</div>
+                    <div class="invoice-value total">{{ total }}€ TTC</div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-label">Retard :</div>
+                    <div class="invoice-value urgent">{{ days_overdue }} jour{{ days_overdue|pluralize }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <p><strong>Merci de régulariser votre situation dans les meilleurs délais.</strong></p>
+        
+        <p>Si vous avez déjà effectué le paiement, veuillez ignorer ce message et nous en excuser.</p>
+        
+        <p>Pour toute question concernant cette facture, n'hésitez pas à me contacter directement.</p>
+        
+        <p style="margin-top: 30px;">
+            Cordialement,<br>
+            <strong>{{ freelance_name }}</strong><br>
+            {{ freelance_email }}
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>Cet email de relance a été envoyé automatiquement par FactureSnap</p>
+        <p>© {% now "Y" %} FactureSnap - Facturation simple pour freelances</p>
+    </div>
+</body>
+</html>

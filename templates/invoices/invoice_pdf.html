@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture {{ invoice.invoice_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            font-size: 11pt;
+        }
+        
+        .header {
+            margin-bottom: 40px;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+        }
+        
+        .invoice-title {
+            font-size: 32pt;
+            color: #2563eb;
+            margin: 0;
+            font-weight: bold;
+        }
+        
+        .invoice-number {
+            font-size: 14pt;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .info-block {
+            width: 48%;
+        }
+        
+        .info-block h3 {
+            color: #2563eb;
+            font-size: 12pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .info-block p {
+            margin: 3px 0;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .items-table thead {
+            background-color: #2563eb;
+            color: white;
+        }
+        
+        .items-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .items-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .items-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .totals {
+            margin-left: auto;
+            width: 300px;
+            margin-top: 20px;
+        }
+        
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+        
+        .totals-row.subtotal {
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .totals-row.total {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2563eb;
+            border-top: 2px solid #2563eb;
+            padding-top: 12px;
+            margin-top: 8px;
+        }
+        
+        .notes {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #f9fafb;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .notes h4 {
+            margin: 0 0 10px 0;
+            color: #2563eb;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        
+        .dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9fafb;
+            border-radius: 5px;
+        }
+        
+        .date-item strong {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1 class="invoice-title">FACTURE</h1>
+        <p class="invoice-number">{{ invoice.invoice_number }}</p>
+    </div>
+    
+    <!-- Dates -->
+    <div class="dates">
+        <div class="date-item">
+            <strong>Date d'émission :</strong> {{ invoice.issue_date|date:"d/m/Y" }}
+        </div>
+        <div class="date-item">
+            <strong>Date d'échéance :</strong> {{ invoice.due_date|date:"d/m/Y" }}
+        </div>
+    </div>
+    
+    <!-- Info section -->
+    <!-- Info section -->
+<div class="info-section">
+    <!-- Émetteur (Freelance) -->
+    <div class="info-block">
+        <h3>De</h3>
+        
+        <!-- Logo si disponible -->
+        {% if invoice.user.profile.logo %}
+        <div style="margin-bottom: 15px;">
+            <img src="file://{{ invoice.user.profile.logo.path }}" alt="Logo" style="max-height: 60px; max-width: 150px; object-fit: contain;">
+        </div>
+        {% endif %}
+        
+        <p><strong>{{ invoice.user.profile.company_name|default:invoice.user.get_full_name|default:invoice.user.username }}</strong></p>
+        <p>{{ invoice.user.email }}</p>
+        
+        {% if invoice.user.profile.address %}
+        <p>{{ invoice.user.profile.address }}</p>
+        <p>{{ invoice.user.profile.postal_code }} {{ invoice.user.profile.city }}</p>
+        <p>{{ invoice.user.profile.country }}</p>
+        {% endif %}
+        
+        {% if invoice.user.profile.siret %}
+        <p style="margin-top: 10px;">SIRET: {{ invoice.user.profile.siret }}</p>
+        {% endif %}
+        
+        {% if invoice.user.profile.phone %}
+        <p>{{ invoice.user.profile.phone }}</p>
+        {% endif %}
+    </div>
+    
+    <!-- Client -->
+    <div class="info-block">
+        <h3>Pour</h3>
+        <p><strong>{{ invoice.client.name }}</strong></p>
+        <p>{{ invoice.client.email }}</p>
+        {% if invoice.client.phone %}
+        <p>{{ invoice.client.phone }}</p>
+        {% endif %}
+        <p>{{ invoice.client.address }}</p>
+        <p>{{ invoice.client.postal_code }} {{ invoice.client.city }}</p>
+        <p>{{ invoice.client.country }}</p>
+        {% if invoice.client.siret %}
+        <p>SIRET: {{ invoice.client.siret }}</p>
+        {% endif %}
+    </div>
+</div>
+    
+    <!-- Items table -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-right">Quantité</th>
+                <th class="text-right">Prix unitaire HT</th>
+                <th class="text-right">Total HT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">{{ item.unit_price }} €</td>
+                <td class="text-right">{{ item.total }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Totals -->
+    <div class="totals">
+        <div class="totals-row subtotal">
+            <span>Sous-total HT :</span>
+            <span>{{ invoice.subtotal }} €</span>
+        </div>
+        <div class="totals-row">
+            <span>TVA ({{ invoice.tax_rate }}%) :</span>
+            <span>{{ invoice.tax_amount }} €</span>
+        </div>
+        <div class="totals-row total">
+            <span>TOTAL TTC :</span>
+            <span>{{ invoice.total }} €</span>
+        </div>
+    </div>
+    
+    <!-- Notes -->
+    {% if invoice.notes %}
+    <div class="notes">
+        <h4>Notes</h4>
+        <p>{{ invoice.notes|linebreaks }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>Facture émise le {{ invoice.created_at|date:"d/m/Y" }}</p>
+        <p>Merci pour votre confiance !</p>
+    </div>
+</body>
+</html>

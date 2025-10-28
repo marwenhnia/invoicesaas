@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Passer Premium - FactureSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            <i class="fas fa-crown text-yellow-500"></i> Passez à Premium
+        </h1>
+        <p class="text-xl text-gray-600">Débloquez toutes les fonctionnalités d'FactureSnap</p>
+    </div>
+
+    <!-- Pricing Card -->
+    <div class="max-w-md mx-auto">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl shadow-2xl p-8 text-white transform hover:scale-105 transition">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-2">Premium</h2>
+                <div class="flex items-center justify-center">
+                    <span class="text-5xl font-bold">9€</span>
+                    <span class="text-xl ml-2">/mois</span>
+                </div>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle text-green-300 mt-1 mr-3"></i>
+                    <span>Factures illimitées</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle text-green-300 mt-1 mr-3"></i>
+                    <span>Relances automatiques</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle text-green-300 mt-1 mr-3"></i>
+                    <span>PDF avec votre logo</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle text-green-300 mt-1 mr-3"></i>
+                    <span>Support prioritaire</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-check-circle text-green-300 mt-1 mr-3"></i>
+                    <span>Aucune publicité</span>
+                </div>
+            </div>
+
+            {% if is_trial_active %}
+            <div class="bg-white/20 rounded-lg p-4 mb-6 text-center">
+                <p class="text-sm">Période d'essai</p>
+                <p class="text-2xl font-bold">{{ trial_days_left }} jour{{ trial_days_left|pluralize }} restant{{ trial_days_left|pluralize }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Remplace le bouton par un formulaire -->
+            <form method="post" action="{% url 'core:create_checkout' %}">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-white text-blue-600 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition">
+                    S'abonner maintenant
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+
+            <p class="text-center text-sm mt-4 text-blue-100">
+                Sans engagement • Annulez à tout moment
+            </p>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mt-16">
+        <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">Questions fréquentes</h2>
+        
+        <div class="space-y-4 max-w-2xl mx-auto">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="font-semibold text-gray-900 mb-2">Puis-je annuler à tout moment ?</h3>
+                <p class="text-gray-600">Oui, vous pouvez annuler votre abonnement à tout moment. Aucun engagement.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="font-semibold text-gray-900 mb-2">Que se passe-t-il après l'essai gratuit ?</h3>
+                <p class="text-gray-600">Après 30 jours, vous devrez souscrire à l'abonnement Premium pour continuer à utiliser FactureSnap.</p>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="font-semibold text-gray-900 mb-2">Mes données sont-elles sécurisées ?</h3>
+                <p class="text-gray-600">Oui, toutes vos données sont chiffrées et stockées de manière sécurisée. Nous utilisons Stripe pour les paiements.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retour -->
+    <div class="text-center mt-12">
+        <a href="{% url 'core:dashboard' %}" class="text-gray-600 hover:text-gray-900 font-medium">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
+    </div>
+</div>
+
+{% endblock %}

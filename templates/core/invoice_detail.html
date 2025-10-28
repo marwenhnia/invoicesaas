@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ invoice.invoice_number }} - InvoiceSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Header avec actions -->
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-file-invoice text-blue-600"></i> {{ invoice.invoice_number }}
+            </h1>
+            <p class="text-gray-600 mt-2">
+                Client : <span class="font-semibold">{{ invoice.client.name }}</span>
+            </p>
+        </div>
+        
+        <div class="flex gap-3">
+            <!-- Dans la div "Actions rapides selon le statut" -->
+            <a href="{% url 'core:invoice_send_email' invoice.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-envelope"></i> Envoyer par email
+            </a>
+            <a href="{% url 'core:invoice_edit' invoice.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{% url 'core:invoice_pdf' invoice.id %}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-file-pdf"></i> Télécharger PDF
+            </a>
+            <button onclick="if(confirm('Supprimer cette facture ?')) window.location.href='{% url 'core:invoice_delete' invoice.id %}'" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-trash"></i> Supprimer
+            </button>
+        </div>
+    </div>
+
+    <!-- Statut avec actions rapides -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">Statut actuel</h2>
+                {% if invoice.status == 'paid' %}
+                <span class="px-4 py-2 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                    <i class="fas fa-check-circle"></i> Payée
+                </span>
+                {% elif invoice.status == 'sent' %}
+                <span class="px-4 py-2 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-clock"></i> Envoyée
+                </span>
+                {% elif invoice.status == 'overdue' %}
+                <span class="px-4 py-2 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+                    <i class="fas fa-exclamation-triangle"></i> En retard
+                </span>
+                {% else %}
+                <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+                    <i class="fas fa-edit"></i> Brouillon
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Actions rapides selon le statut -->
+            <div class="flex gap-3">
+                {% if invoice.status == 'draft' %}
+                <a href="{% url 'core:invoice_mark_sent' invoice.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    <i class="fas fa-paper-plane"></i> Marquer comme envoyée
+                </a>
+                {% endif %}
+                
+                {% if invoice.status != 'paid' %}
+                <a href="{% url 'core:invoice_mark_paid' invoice.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    <i class="fas fa-check"></i> Marquer comme payée
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Dates -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-calendar text-blue-600"></i> Dates
+            </h2>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Date d'émission :</span>
+                    <span class="font-semibold">{{ invoice.issue_date|date:"d/m/Y" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Date d'échéance :</span>
+                    <span class="font-semibold">{{ invoice.due_date|date:"d/m/Y" }}</span>
+                </div>
+                {% if invoice.sent_at %}
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Envoyée le :</span>
+                    <span class="font-semibold">{{ invoice.sent_at|date:"d/m/Y à H:i" }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.paid_at %}
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Payée le :</span>
+                    <span class="font-semibold text-green-600">{{ invoice.paid_at|date:"d/m/Y à H:i" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Client -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-user text-blue-600"></i> Client
+            </h2>
+            <div class="space-y-2">
+                <p class="font-semibold text-lg">{{ invoice.client.name }}</p>
+                <p class="text-gray-600">{{ invoice.client.email }}</p>
+                {% if invoice.client.phone %}
+                <p class="text-gray-600">{{ invoice.client.phone }}</p>
+                {% endif %}
+                <p class="text-gray-600">{{ invoice.client.address }}</p>
+                <p class="text-gray-600">{{ invoice.client.postal_code }} {{ invoice.client.city }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lignes de facture -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-list text-blue-600"></i> Détails de la prestation
+        </h2>
+        
+        <table class="min-w-full">
+            <thead class="border-b-2 border-gray-200">
+                <tr>
+                    <th class="text-left py-3 px-4 text-gray-600">Description</th>
+                    <th class="text-right py-3 px-4 text-gray-600">Quantité</th>
+                    <th class="text-right py-3 px-4 text-gray-600">Prix unitaire</th>
+                    <th class="text-right py-3 px-4 text-gray-600">Total HT</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in invoice.items.all %}
+                <tr>
+                    <td class="py-3 px-4">{{ item.description }}</td>
+                    <td class="text-right py-3 px-4">{{ item.quantity }}</td>
+                    <td class="text-right py-3 px-4">{{ item.unit_price }} €</td>
+                    <td class="text-right py-3 px-4 font-semibold">{{ item.total }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totaux -->
+        <div class="mt-6 border-t pt-4">
+            <div class="flex justify-end">
+                <div class="w-64 space-y-2">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Sous-total HT :</span>
+                        <span class="font-semibold">{{ invoice.subtotal }} €</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>TVA ({{ invoice.tax_rate }}%) :</span>
+                        <span class="font-semibold">{{ invoice.tax_amount }} €</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-bold text-blue-600 pt-2 border-t-2">
+                        <span>TOTAL TTC :</span>
+                        <span>{{ invoice.total }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    {% if invoice.notes %}
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-sticky-note text-blue-600"></i> Notes
+        </h2>
+        <p class="text-gray-600 whitespace-pre-line">{{ invoice.notes }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Bouton retour -->
+    <div class="flex justify-center">
+        <a href="{% url 'core:dashboard' %}" class="text-gray-600 hover:text-gray-900 font-medium">
+            <i class="fas fa-arrow-left"></i> Retour au dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

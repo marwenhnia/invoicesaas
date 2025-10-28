@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Paramètres - FactureSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-cog text-blue-600"></i> Paramètres
+        </h1>
+        <p class="text-gray-600 mt-2">Gérez votre profil et vos informations</p>
+    </div>
+
+   <!-- Statut d'abonnement -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+        <i class="fas fa-crown text-yellow-500"></i> Abonnement
+    </h2>
+    
+    {% if user.profile.is_premium %}
+        <!-- Si Premium -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-600 text-2xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-green-800">Abonnement Premium actif</p>
+                        <p class="text-green-600 text-sm">Vous avez accès à toutes les fonctionnalités</p>
+                    </div>
+                </div>
+                <a href="{% url 'core:cancel_subscription' %}" onclick="return confirm('Voulez-vous vraiment annuler votre abonnement ?')" class="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-lg font-medium transition text-sm">
+                    Annuler
+                </a>
+            </div>
+        </div>
+        
+    {% elif user.profile.is_trial_active %}
+        <!-- Si en période d'essai -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-gift text-blue-600 text-2xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-blue-800">Période d'essai gratuite</p>
+                        <p class="text-blue-600 text-sm">{{ user.profile.days_left_in_trial }} jour{{ user.profile.days_left_in_trial|pluralize }} restant{{ user.profile.days_left_in_trial|pluralize }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'core:upgrade' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    Passer Premium
+                </a>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- Si essai terminé -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-2xl mr-3"></i>
+                    <div>
+                        <p class="font-semibold text-red-800">Période d'essai terminée</p>
+                        <p class="text-red-600 text-sm">Abonnez-vous pour continuer</p>
+                    </div>
+                </div>
+                <a href="{% url 'core:upgrade' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                    S'abonner
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+   
+
+    <!-- Formulaire profil -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Informations personnelles -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Informations personnelles</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom d'utilisateur</label>
+                    <input type="text" value="{{ user.username }}" disabled class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                    {{ user_form.first_name }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                    {{ user_form.last_name }}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    {{ user_form.email }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations freelance -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Informations professionnelles</h2>
+            <p class="text-sm text-gray-600 mb-4">Ces informations apparaîtront sur vos factures</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
+                    {{ profile_form.company_name }}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                    {{ profile_form.address }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Code postal</label>
+                    {{ profile_form.postal_code }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                    {{ profile_form.city }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pays</label>
+                    {{ profile_form.country }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                    {{ profile_form.phone }}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
+                    {{ profile_form.siret }}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Logo (optionnel)</label>
+                    {{ profile_form.logo }}
+                    {% if user.profile.logo %}
+                    <img src="{{ user.profile.logo.url }}" alt="Logo" class="mt-2 h-16">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="flex justify-between items-center">
+            <a href="{% url 'core:dashboard' %}" class="text-gray-600 hover:text-gray-900 font-medium">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

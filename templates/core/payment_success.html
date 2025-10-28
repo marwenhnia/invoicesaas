@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement réussi - FactureSnap{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto text-center">
+    <div class="bg-white rounded-2xl shadow-xl p-12">
+        <div class="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-check text-green-600 text-5xl"></i>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            Paiement réussi ! 🎉
+        </h1>
+        
+        <p class="text-xl text-gray-600 mb-8">
+            Bienvenue dans FactureSnap Premium !<br>
+            Votre compte a été activé avec succès.
+        </p>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h2 class="font-semibold text-blue-900 mb-3">Vous avez maintenant accès à :</h2>
+            <ul class="text-left space-y-2 text-blue-800">
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Factures illimitées</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Relances automatiques</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> PDF avec votre logo</li>
+                <li><i class="fas fa-check-circle text-green-500 mr-2"></i> Support prioritaire</li>
+            </ul>
+        </div>
+        
+        <a href="{% url 'core:dashboard' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition">
+            Accéder au dashboard
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

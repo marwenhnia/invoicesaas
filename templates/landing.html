@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Title optimisé (60 caractères) -->
+    <title>Logiciel de Facturation Gratuit | FactureSnap</title>
+    
+    <!-- Meta description optimisée (155 caractères) -->
+    <meta name="description" content="FactureSnap : logiciel de facturation gratuit pour freelances. Créez vos factures et devis en ligne. Essai 30 jours sans carte bancaire.">
+    
+    <!-- Meta keywords -->
+    <meta name="keywords" content="logiciel de facturation, logiciel facturation gratuit, logiciel facture, devis facture, facturation en ligne">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://myjunkfuel.com">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Logiciel de Facturation Gratuit | FactureSnap">
+    <meta property="og:description" content="Créez vos factures et devis en 10 secondes. Solution gratuite pour freelances.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://myjunkfuel.com">
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "FactureSnap",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "description": "Logiciel de facturation gratuit en ligne pour freelances et auto-entrepreneurs"
+    }
+    </script>
+    
+    <style>
+        /* Smooth scroll pour les ancres */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    
+    <!-- Navbar responsive -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="text-xl sm:text-2xl font-bold text-blue-600">
+                    <i class="fas fa-receipt"></i> <strong>FactureSnap</strong>
+                </div>
+                
+                <!-- Menu desktop -->
+                <div class="hidden md:flex space-x-4">
+                    <a href="#fonctionnalites" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium text-sm lg:text-base">
+                        Fonctionnalités
+                    </a>
+                    <a href="#tarifs" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium text-sm lg:text-base">
+                        Tarifs
+                    </a>
+                    <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium text-sm lg:text-base">
+                        Connexion
+                    </a>
+                    <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm lg:text-base">
+                        <strong>Essai gratuit</strong>
+                    </a>
+                </div>
+                
+                <!-- Menu mobile (bouton hamburger) -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            
+            <!-- Menu mobile (caché par défaut) -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4">
+                <a href="#fonctionnalites" class="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium">
+                    Fonctionnalités
+                </a>
+                <a href="#tarifs" class="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium">
+                    Tarifs
+                </a>
+                <a href="{% url 'login' %}" class="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg font-medium">
+                    Connexion
+                </a>
+                <a href="{% url 'signup' %}" class="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition mt-2 text-center">
+                    <strong>Essai gratuit</strong>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section responsive -->
+    <section class="bg-gradient-to-br from-blue-50 to-blue-100 py-12 sm:py-16 lg:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- H1 responsive -->
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+                    <strong>Logiciel de facturation gratuit</strong> : créez vos <strong>factures</strong> et <strong>devis</strong> en 10 secondes
+                </h1>
+                
+                <!-- H2 responsive -->
+                <h2 class="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
+                    FactureSnap est le <strong>logiciel de facturation</strong> idéal pour les freelances et auto-entrepreneurs. Créez, envoyez et gérez vos <strong>factures en ligne</strong> gratuitement.
+                </h2>
+                
+                <!-- Boutons responsive -->
+                <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
+                    <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-gift"></i> <strong>Essai gratuit</strong> 30 jours
+                    </a>
+                    <a href="#fonctionnalites" class="bg-white hover:bg-gray-50 text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition border-2 border-blue-600">
+                        Découvrir
+                    </a>
+                </div>
+                
+                <!-- Features badges responsive -->
+                <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 text-sm px-4">
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        Sans carte bancaire
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <strong>Factures</strong> illimitées
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <strong>Devis</strong> professionnels
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section contenu éditorial responsive -->
+    <section class="py-12 sm:py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Pourquoi choisir notre <strong>logiciel de facturation gratuit</strong> ?
+            </h3>
+            
+            <div class="text-gray-700 space-y-4 text-base sm:text-lg leading-relaxed">
+                <p>
+                    En tant que freelance ou auto-entrepreneur, la gestion de vos <strong>factures</strong> et <strong>devis</strong> peut rapidement devenir chronophage. Notre <strong>logiciel de facturation</strong> a été conçu pour simplifier votre quotidien.
+                </p>
+                
+                <p>
+                    Avec FactureSnap, vous bénéficiez d'un <strong>logiciel de facturation en ligne</strong> complet qui vous permet de générer des <strong>factures PDF</strong> conformes à la législation française, d'envoyer automatiquement vos documents à vos clients par email, et de gérer vos <strong>devis</strong> facilement.
+                </p>
+                
+                <p>
+                    Plus besoin de passer des heures sur Excel : notre <strong>logiciel devis facture</strong> simplifie votre comptabilité. Créez vos <strong>factures</strong> professionnelles en moins de 10 secondes. <a href="{% url 'signup' %}" class="text-blue-600 underline font-semibold">Testez gratuitement pendant 30 jours</a>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features responsive -->
+    <section id="fonctionnalites" class="py-12 sm:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h4 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
+                Les fonctionnalités de notre <strong>logiciel de facturation</strong>
+            </h4>
+            
+            <p class="text-center text-gray-600 mb-12 sm:mb-16 text-base sm:text-lg px-4">
+                Tout ce dont un freelance a besoin pour gérer sa <strong>facturation</strong>
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center hover:shadow-xl transition">
+                    <div class="bg-blue-100 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-invoice text-blue-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <h5 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+                        <strong>Factures</strong> professionnelles
+                    </h5>
+                    <p class="text-gray-600 text-sm sm:text-base">
+                        Créez des <strong>factures PDF</strong> conformes aux normes françaises. Notre <strong>logiciel de facturation</strong> génère automatiquement tous les champs obligatoires.
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center hover:shadow-xl transition">
+                    <div class="bg-green-100 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-green-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <h5 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+                        <strong>Devis</strong> personnalisés
+                    </h5>
+                    <p class="text-gray-600 text-sm sm:text-base">
+                        Générez des <strong>devis</strong> professionnels avec notre <strong>logiciel devis facture</strong>. Convertissez vos <strong>devis</strong> en <strong>factures</strong> en un clic.
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center hover:shadow-xl transition">
+                    <div class="bg-yellow-100 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-bell text-yellow-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <h5 class="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+                        Relances automatiques
+                    </h5>
+                    <p class="text-gray-600 text-sm sm:text-base">
+                        Notre <strong>logiciel facturation gratuit</strong> envoie des relances automatiques pour les <strong>factures</strong> impayées.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing responsive -->
+    <section id="tarifs" class="bg-white py-12 sm:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h4 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
+                Tarif de notre <strong>logiciel de facturation gratuit</strong>
+            </h4>
+            <p class="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg px-4">
+                Un <strong>logiciel facture</strong> simple et transparent
+            </p>
+            
+            <div class="max-w-md mx-auto px-4">
+                <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border-4 border-blue-500">
+                    <div class="text-center mb-6 sm:mb-8">
+                        <h5 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Abonnement Premium</h5>
+                        <div class="flex items-center justify-center mb-4">
+                            <span class="text-4xl sm:text-5xl font-bold text-blue-600">3.99€</span>
+                            <span class="text-lg sm:text-xl text-gray-600 ml-2">/mois</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Après <strong>30 jours d'essai gratuit</strong></p>
+                    </div>
+                    
+                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8 text-sm sm:text-base">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span><strong>Factures</strong> illimitées</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span><strong>Devis</strong> illimités</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span>Relances automatiques</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span><strong>PDF</strong> avec logo personnalisé</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                            <span>Support prioritaire</span>
+                        </li>
+                    </ul>
+                    
+                    <a href="{% url 'signup' %}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 rounded-lg font-bold text-center transition transform hover:scale-105 text-base sm:text-lg">
+                        <strong>Commencer gratuitement</strong>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA responsive -->
+    <section class="bg-blue-600 py-12 sm:py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h4 class="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">
+                Prêt à simplifier votre <strong>facturation</strong> ?
+            </h4>
+            <p class="text-blue-100 mb-6 sm:mb-8 text-base sm:text-lg px-4">
+                Rejoignez les freelances qui utilisent notre <strong>logiciel de facturation gratuit</strong>
+            </p>
+            <a href="{% url 'signup' %}" class="inline-block bg-white hover:bg-gray-100 text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition transform hover:scale-105">
+                <strong>Essai gratuit</strong> 30 jours
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer responsive -->
+    <footer class="bg-gray-900 text-gray-400 py-6 sm:py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm mb-4">
+                <a href="{% url 'mentions' %}" class="hover:text-white">Mentions légales</a>
+                <span class="hidden sm:inline">•</span>
+                <a href="{% url 'cgv' %}" class="hover:text-white">CGV</a>
+                <span class="hidden sm:inline">•</span>
+                <a href="mailto:contact@invoicesnap.fr" class="hover:text-white">Contact</a>
+            </div>
+            <p class="text-center text-xs sm:text-sm">
+                © {% now "Y" %} FactureSnap - <strong>Logiciel de facturation gratuit</strong> pour freelances
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script pour le menu mobile -->
+    <script>
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Ferme le menu quand on clique sur un lien
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    </script>
+
+</body>
+</html>
