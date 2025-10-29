@@ -352,7 +352,7 @@ class CustomLoginView(LoginView):
     """
     Vue de login personnalisée avec redirection intelligente.
     """
-    template_name = 'registration/login.html'
+    template_name = 'auth/login.html'
     
     def get_success_url(self):
         """
@@ -372,7 +372,7 @@ class CustomLoginView(LoginView):
         # Sinon → dashboard user
         return reverse_lazy('core:dashboard')
     
-    
+
 from django.contrib.auth import logout
 
 
