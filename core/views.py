@@ -766,3 +766,23 @@ def create_superuser_endpoint(request):
     )
     
     return HttpResponse(f"✅ Superuser '{username}' créé avec succès ! Email: {email} | SUPPRIME CET ENDPOINT MAINTENANT !")
+
+
+
+def check_superusers(request):
+    """
+    Liste tous les superusers.
+    À SUPPRIMER après vérification !
+    """
+    from django.contrib.auth.models import User
+    
+    superusers = User.objects.filter(is_superuser=True)
+    
+    if not superusers.exists():
+        return HttpResponse("❌ Aucun superuser n'existe !")
+    
+    result = "<h1>Liste des Superusers :</h1>"
+    for user in superusers:
+        result += f"<p>Username: <strong>{user.username}</strong> | Email: {user.email} | Staff: {user.is_staff} | Superuser: {user.is_superuser}</p>"
+    
+    return HttpResponse(result)
