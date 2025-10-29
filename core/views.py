@@ -772,3 +772,46 @@ def check_superusers(request):
         result += f"<p>Username: <strong>{user.username}</strong> | Email: {user.email} | Staff: {user.is_staff} | Superuser: {user.is_superuser}</p>"
     
     return HttpResponse(result)
+
+
+
+def create_admin_profile(request):
+    """
+    Crée le profile pour le superuser facturesnapadmin.
+    À SUPPRIMER après utilisation !
+    """
+    from django.contrib.auth.models import User
+    from core.models import UserProfile
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Sécurité basique
+    secret = request.GET.get('secret')
+    if secret != os.environ.get('SUPERUSER_SECRET', 'change-me-secret-123'):
+        return HttpResponse("❌ Accès refusé", status=403)
+    
+    try:
+        # Récupère le superuser
+        admin = User.objects.get(username='facturesnapadmin')
+        
+        # Crée ou met à jour son profile
+        profile, created = UserProfile.objects.get_or_create(
+            user=admin,
+            defaults={
+                'is_premium': True,
+                'trial_end_date': timezone.now() + timedelta(days=9999),
+                'company_name': 'FactureSnap Admin',
+            }
+        )
+        
+        if created:
+            return HttpResponse(f"✅ Profile créé pour {admin.username} ! Maintenant tu peux te connecter. SUPPRIME CET ENDPOINT !")
+        else:
+            # Met à jour le profile existant
+            profile.is_premium = True
+            profile.trial_end_date = timezone.now() + timedelta(days=9999)
+            profile.save()
+            return HttpResponse(f"✅ Profile mis à jour pour {admin.username} ! SUPPRIME CET ENDPOINT !")
+            
+    except User.DoesNotExist:
+        return HttpResponse("❌ Utilisateur facturesnapadmin introuvable !", status=404)
