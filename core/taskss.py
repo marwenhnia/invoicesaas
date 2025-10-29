@@ -43,7 +43,7 @@ def send_reminder_email(invoice):
     """
     Lance l'envoi de relance en arrière-plan via Celery.
     """
-    from core.tasks import send_reminder_email_task
+    from core.taskss import send_reminder_email_task
     
     try:
         send_reminder_email_task.delay(invoice.id)
