@@ -610,12 +610,12 @@ def admin_dashboard(request):
     # Utilisateurs actifs (ayant créé une facture dans les 30 derniers jours)
     last_month = timezone.now() - timedelta(days=30)
     active_users = User.objects.filter(
-        invoice__created_at__gte=last_month
+        invoices__created_at__gte=last_month
     ).distinct().count()
     
     # Top 5 utilisateurs (par nombre de factures)
     top_users = User.objects.select_related('profile').annotate(
-        invoice_count=Count('invoice')
+        invoice_count=Count('invoices')
     ).order_by('-invoice_count')[:5]
 
     
@@ -643,8 +643,8 @@ def admin_users_list(request):
     """
     # Récupère tous les utilisateurs
     users = User.objects.select_related('profile').annotate(
-        invoice_count=Count('invoice'),
-        total_revenue=Count('invoice', filter=Q(invoice__status='paid'))
+        invoice_count=Count('invoices'),
+        total_revenue=Count('invoices', filter=Q(invoices__status='paid'))
     ).order_by('-date_joined')
     
     # Filtres
