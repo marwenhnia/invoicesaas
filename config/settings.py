@@ -141,18 +141,21 @@ LOGOUT_REDIRECT_URL = 'landing'
 # EMAIL CONFIGURATION
 # ============================================
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
 if os.environ.get('RENDER'):
-    # PRODUCTION : info@myjunkfuel.com
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'info@myjunkfuel.com')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = f"FactureSnap <{os.environ.get('EMAIL_HOST_USER', 'info@myjunkfuel.com')}>"
+    # PRODUCTION : Brevo API (pas de SMTP bloqué)
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp-relay.brevo.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.environ.get('BREVO_SMTP_USER')  # Ton email Brevo
+    EMAIL_HOST_PASSWORD = os.environ.get('BREVO_SMTP_KEY')  # Clé SMTP Brevo
+    DEFAULT_FROM_EMAIL = f"FactureSnap <{os.environ.get('BREVO_SMTP_USER')}>"
 else:
-    # LOCAL : marwen.hnia11@gmail.com
+    # LOCAL : Gmail
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
     EMAIL_HOST_USER = config('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
