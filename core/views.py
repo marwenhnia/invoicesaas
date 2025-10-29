@@ -21,7 +21,7 @@ from core.decorators import admin_required
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
-
+import os
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
@@ -737,3 +737,32 @@ def admin_toggle_subscription(request, user_id):
         messages.success(request, f"✅ {user.username} est maintenant en plan Premium.")
     
     return redirect('admin_user_detail', user_id=user_id)
+
+
+
+def create_superuser_endpoint(request):
+    """
+    Endpoint temporaire pour créer un superuser.
+    À SUPPRIMER après utilisation !
+    """
+    # Sécurité basique
+    secret = request.GET.get('secret')
+    if secret != os.environ.get('SUPERUSER_SECRET', 'change-me-secret-123'):
+        return HttpResponse("❌ Accès refusé", status=403)
+    
+    # Vérifie si un superuser existe déjà
+    if User.objects.filter(is_superuser=True).exists():
+        return HttpResponse("⚠️ Un superuser existe déjà !", status=400)
+    
+    # Crée le superuser
+    username = request.GET.get('username', 'facturesnapadmin')
+    email = request.GET.get('email', 'info@myjunfuel.com')
+    password = request.GET.get('password', 'A7mara5thar095*')
+    
+    user = User.objects.create_superuser(
+        username=username,
+        email=email,
+        password=password
+    )
+    
+    return HttpResponse(f"✅ Superuser '{username}' créé avec succès ! Email: {email} | SUPPRIME CET ENDPOINT MAINTENANT !")

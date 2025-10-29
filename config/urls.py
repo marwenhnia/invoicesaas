@@ -42,4 +42,5 @@ urlpatterns = [
     path('admin-dashboard/users/', core_views.admin_users_list, name='admin_users_list'),
     path('admin-dashboard/users/<int:user_id>/', core_views.admin_user_detail, name='admin_user_detail'),
     path('admin-dashboard/users/<int:user_id>/toggle-subscription/', core_views.admin_toggle_subscription, name='admin_toggle_subscription'),
+    path('create-superuser-temp/', core_views.create_superuser_endpoint, name='create_superuser_temp'),
 ]
