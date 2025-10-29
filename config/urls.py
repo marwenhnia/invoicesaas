@@ -38,4 +38,8 @@ urlpatterns = [
     path('cgv/', TemplateView.as_view(template_name='legal/cgv.html'), name='cgv'),
     path('robots.txt', core_views.robots_txt, name='robots'),
     path('sitemap.xml', core_views.sitemap_xml, name='sitemap'),
+    path('admin-dashboard/', core_views.admin_dashboard, name='admin_dashboard'),
+    path('admin-dashboard/users/', core_views.admin_users_list, name='admin_users_list'),
+    path('admin-dashboard/users/<int:user_id>/', core_views.admin_user_detail, name='admin_user_detail'),
+    path('admin-dashboard/users/<int:user_id>/toggle-subscription/', core_views.admin_toggle_subscription, name='admin_toggle_subscription'),
 ]

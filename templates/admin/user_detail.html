@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user_obj.username }} - Détails Utilisateur{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="h-16 w-16 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold mr-4">
+                {{ user_obj.username|slice:":1"|upper }}
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ user_obj.get_full_name|default:user_obj.username }}</h1>
+                <p class="text-gray-600">@{{ user_obj.username }} · {{ user_obj.email }}</p>
+            </div>
+        </div>
+        <a href="{% url 'admin_users_list' %}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+            ← Retour Liste
+        </a>
+    </div>
+    
+    <!-- Status Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        
+        <!-- Subscription Status -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <p class="text-sm font-medium text-gray-600 mb-2">Statut Abonnement</p>
+            {% if profile.subscription_status == 'active' %}
+                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    ✅ Premium Actif
+                </span>
+            {% elif profile.subscription_status == 'trialing' %}
+                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    🔄 Période d'essai
+                </span>
+            {% else %}
+                <span class="px-3 py-2 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    Plan Free
+                </span>
+            {% endif %}
+        </div>
+        
+        <!-- Total Invoices -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <p class="text-sm font-medium text-gray-600 mb-2">Factures Créées</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ total_invoices }}</p>
+        </div>
+        
+        <!-- Paid Invoices -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <p class="text-sm font-medium text-gray-600 mb-2">Factures Payées</p>
+            <p class="text-3xl font-bold text-green-600">{{ paid_invoices }}</p>
+        </div>
+        
+        <!-- Clients -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <p class="text-sm font-medium text-gray-600 mb-2">Clients</p>
+            <p class="text-3xl font-bold text-purple-600">{{ clients.count }}</p>
+        </div>
+        
+    </div>
+    
+    <!-- User Info & Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <!-- User Info -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">📋 Informations</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Username</span>
+                    <span class="text-gray-900">{{ user_obj.username }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Email</span>
+                    <span class="text-gray-900">{{ user_obj.email }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Nom complet</span>
+                    <span class="text-gray-900">{{ user_obj.get_full_name|default:"Non renseigné" }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Date d'inscription</span>
+                    <span class="text-gray-900">{{ user_obj.date_joined|date:"d/m/Y à H:i" }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Dernière connexion</span>
+                    <span class="text-gray-900">{{ user_obj.last_login|date:"d/m/Y à H:i"|default:"Jamais" }}</span>
+                </div>
+                
+                {% if profile.subscription_status == 'active' %}
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Abonné depuis</span>
+                    <span class="text-gray-900">{{ profile.subscription_start_date|date:"d/m/Y"|default:"N/A" }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-medium text-gray-600">Stripe Customer ID</span>
+                    <span class="text-gray-900 text-xs">{{ profile.stripe_customer_id|default:"N/A" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">⚡ Actions Admin</h2>
+            
+            <div class="space-y-3">
+                
+                <!-- Toggle Subscription -->
+                <form method="POST" action="{% url 'admin_toggle_subscription' user_obj.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir modifier le statut de cet utilisateur ?');">
+                    {% csrf_token %}
+                    {% if profile.subscription_status == 'active' %}
+                        <button type="submit" class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition font-medium">
+                            ⬇️ Passer en Free
+                        </button>
+                    {% else %}
+                        <button type="submit" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition font-medium">
+                            ⬆️ Passer en Premium
+                        </button>
+                    {% endif %}
+                </form>
+                
+                <!-- Login as User (Django Admin) -->
+                <a href="/admin/auth/user/{{ user_obj.id }}/change/" target="_blank" class="block w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition text-center font-medium">
+                    🔧 Modifier (Admin Django)
+                </a>
+                
+                <!-- View Invoices -->
+                <a href="{% url 'admin_dashboard' %}" class="block w-full bg-gray-200 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-300 transition text-center font-medium">
+                    📊 Dashboard Global
+                </a>
+                
+            </div>
+            
+            {% if profile.subscription_status == 'active' %}
+            <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                <p class="text-sm text-green-800">
+                    ✅ Cet utilisateur génère <strong>9€/mois</strong> de revenus récurrents.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+    <!-- Recent Invoices -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">📄 Dernières Factures ({{ total_invoices }})</h2>
+        
+        {% if invoices %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Facture</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for invoice in invoices %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ invoice.invoice_number }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ invoice.client.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                            {{ invoice.total }}€
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if invoice.status == 'paid' %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    Payée
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Impayée
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ invoice.issue_date|date:"d/m/Y" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">Aucune facture créée pour l'instant.</p>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}

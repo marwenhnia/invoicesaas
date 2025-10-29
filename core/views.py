@@ -17,6 +17,10 @@ import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils import timezone
+from datetime import timedelta
+from django.contrib.auth.models import User
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -564,3 +568,172 @@ Sitemap: https://myjunkfuel.com/sitemap.xml"""
 def sitemap_xml(request):
     xml = render_to_string('sitemap.xml')
     return HttpResponse(xml, content_type="application/xml")
+
+
+
+@staff_member_required
+def admin_dashboard(request):
+    """
+    Dashboard admin avec statistiques globales.
+    """
+    # Statistiques utilisateurs
+    total_users = User.objects.count()
+    premium_users = UserProfile.objects.filter(subscription_status='active').count()
+    free_users = total_users - premium_users
+    
+    # Statistiques financières
+    total_revenue = UserProfile.objects.filter(
+        subscription_status='active'
+    ).count() * 9  # 9€ par mois par utilisateur premium
+    
+    # Statistiques factures
+    total_invoices = Invoice.objects.count()
+    paid_invoices = Invoice.objects.filter(status='paid').count()
+    unpaid_invoices = Invoice.objects.filter(status='unpaid').count()
+    
+    # Nouveaux utilisateurs (7 derniers jours)
+    last_week = timezone.now() - timedelta(days=7)
+    new_users_week = User.objects.filter(date_joined__gte=last_week).count()
+    
+    # Utilisateurs actifs (ayant créé une facture dans les 30 derniers jours)
+    last_month = timezone.now() - timedelta(days=30)
+    active_users = User.objects.filter(
+        invoice__created_at__gte=last_month
+    ).distinct().count()
+    
+    # Revenus par mois (12 derniers mois)
+    monthly_revenue = []
+    for i in range(12, 0, -1):
+        month_start = timezone.now() - timedelta(days=30*i)
+        month_end = timezone.now() - timedelta(days=30*(i-1))
+        
+        premium_count = UserProfile.objects.filter(
+            subscription_status='active',
+            subscription_start_date__lte=month_end
+        ).count()
+        
+        monthly_revenue.append({
+            'month': month_start.strftime('%b %Y'),
+            'revenue': premium_count * 9
+        })
+    
+    # Top 5 utilisateurs (par nombre de factures)
+    top_users = User.objects.annotate(
+        invoice_count=Count('invoice')
+    ).order_by('-invoice_count')[:5]
+    
+    context = {
+        'total_users': total_users,
+        'premium_users': premium_users,
+        'free_users': free_users,
+        'total_revenue': total_revenue,
+        'total_invoices': total_invoices,
+        'paid_invoices': paid_invoices,
+        'unpaid_invoices': unpaid_invoices,
+        'new_users_week': new_users_week,
+        'active_users': active_users,
+        'monthly_revenue': monthly_revenue,
+        'top_users': top_users,
+    }
+    
+    return render(request, 'admin/dashboard.html', context)
+
+
+@staff_member_required
+def admin_users_list(request):
+    """
+    Liste de tous les utilisateurs avec filtres.
+    """
+    # Récupère tous les utilisateurs
+    users = User.objects.select_related('userprofile').annotate(
+        invoice_count=Count('invoice'),
+        total_revenue=Count('invoice', filter=Q(invoice__status='paid'))
+    ).order_by('-date_joined')
+    
+    # Filtres
+    status_filter = request.GET.get('status', 'all')
+    search = request.GET.get('search', '')
+    
+    if status_filter == 'premium':
+        users = users.filter(userprofile__subscription_status='active')
+    elif status_filter == 'free':
+        users = users.exclude(userprofile__subscription_status='active')
+    elif status_filter == 'trial':
+        users = users.filter(userprofile__subscription_status='trialing')
+    
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
+    
+    context = {
+        'users': users,
+        'status_filter': status_filter,
+        'search': search,
+        'total_count': users.count(),
+    }
+    
+    return render(request, 'admin/users_list.html', context)
+
+
+@staff_member_required
+def admin_user_detail(request, user_id):
+    """
+    Détails d'un utilisateur spécifique.
+    """
+    user = get_object_or_404(User, id=user_id)
+    profile = user.userprofile
+    
+    # Statistiques de l'utilisateur
+    invoices = Invoice.objects.filter(user=user).order_by('-created_at')
+    clients = Client.objects.filter(user=user)
+    
+    total_invoices = invoices.count()
+    paid_invoices = invoices.filter(status='paid').count()
+    unpaid_invoices = invoices.filter(status='unpaid').count()
+    
+    # Revenus générés (fictif, basé sur nombre de factures payées)
+    total_generated = paid_invoices * 100  # Exemple
+    
+    context = {
+        'user_obj': user,
+        'profile': profile,
+        'invoices': invoices[:10],  # 10 dernières factures
+        'clients': clients,
+        'total_invoices': total_invoices,
+        'paid_invoices': paid_invoices,
+        'unpaid_invoices': unpaid_invoices,
+        'total_generated': total_generated,
+    }
+    
+    return render(request, 'admin/user_detail.html', context)
+
+
+@staff_member_required
+def admin_toggle_subscription(request, user_id):
+    """
+    Active/désactive manuellement l'abonnement d'un utilisateur.
+    """
+    if request.method != 'POST':
+        return redirect('admin_users_list')
+    
+    user = get_object_or_404(User, id=user_id)
+    profile = user.userprofile
+    
+    if profile.subscription_status == 'active':
+        # Passer en Free
+        profile.subscription_status = 'inactive'
+        profile.stripe_subscription_id = None
+        profile.save()
+        messages.success(request, f"✅ {user.username} est maintenant en plan Free.")
+    else:
+        # Passer en Premium (manuellement)
+        profile.subscription_status = 'active'
+        profile.subscription_start_date = timezone.now()
+        profile.save()
+        messages.success(request, f"✅ {user.username} est maintenant en plan Premium.")
+    
+    return redirect('admin_user_detail', user_id=user_id)
