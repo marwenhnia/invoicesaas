@@ -137,27 +137,25 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'core:dashboard'
 LOGOUT_REDIRECT_URL = 'landing'
 
-# Email configuration
-# Email configuration
+# ============================================
+# EMAIL CONFIGURATION
+# ============================================
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
 if os.environ.get('RENDER'):
-    # Production
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.sendgrid.net'  # Ou Gmail, OVH, etc.
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'apikey'  # Pour SendGrid
-    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_API_KEY')
-    DEFAULT_FROM_EMAIL = 'FactureSnap <marwen.hnia11@gmail.com>'
+    # PRODUCTION : info@myjunkfuel.com
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'info@myjunkfuel.com')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = f"FactureSnap <{os.environ.get('EMAIL_HOST_USER', 'info@myjunkfuel.com')}>"
 else:
-    # Local
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
+    # LOCAL : marwen.hnia11@gmail.com
     EMAIL_HOST_USER = config('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
-
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
