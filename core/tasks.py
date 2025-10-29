@@ -41,80 +41,38 @@ def check_overdue_invoices():
 
 def send_reminder_email(invoice):
     """
-    Lance l'envoi de relance en arrière-plan via Celery.
+    Envoie un email de relance pour une facture en retard.
+    Envoi SYNCHRONE.
+    Retourne True si succès, False sinon.
     """
-    from core.tasks import send_reminder_email_task
+    from datetime import date
     
     try:
-        send_reminder_email_task.delay(invoice.id)
-        print(f"✅ Tâche de relance lancée pour facture {invoice.invoice_number}")
-        return True
-    except Exception as e:
-        print(f"❌ Erreur lors du lancement de la tâche : {e}")
-        return False
-
-
-@shared_task
-def send_invoice_async(invoice_id):
-    """
-    Tâche asynchrone pour envoyer une facture par email.
-    Utilisée pour ne pas bloquer l'interface utilisateur.
-    """
-    try:
-        invoice = Invoice.objects.get(id=invoice_id)
-        from .utils import send_invoice_email
-        return send_invoice_email(invoice)
-    except Invoice.DoesNotExist:
-        return False
-    
-
-
-
-
-
-@shared_task(bind=True, max_retries=3)
-def send_invoice_email_task(self, invoice_id):
-    """
-    Tâche Celery pour envoyer une facture par email en arrière-plan.
-    """
-    from core.models import Invoice
-    
-    try:
-        print(f"📧 [CELERY] Début envoi email pour facture ID={invoice_id}")
+        print(f"⚠️ Envoi relance pour facture {invoice.invoice_number}")
         
-        # Récupère la facture
-        invoice = Invoice.objects.get(id=invoice_id)
-        
-        # Génère le PDF
-        html_string = render_to_string('invoices/invoice_pdf.html', {'invoice': invoice})
-        
-        gc.collect()
-        from weasyprint import HTML, CSS
-        pdf_file = HTML(string=html_string).write_pdf(
-            optimize_images=True,  # Optimise les images
-            uncompressed_pdf=False  # Compresse le PDF
-        )
-        del html_string
-        gc.collect()
-        print(f"✅ [CELERY] PDF généré")
+        # Calcule le nombre de jours de retard
+        days_overdue = (date.today() - invoice.due_date).days
         
         # Prépare l'email HTML
-        email_html = render_to_string('emails/invoice_email.html', {
+        email_html = render_to_string('emails/reminder_email.html', {
             'client_name': invoice.client.name,
             'invoice_number': invoice.invoice_number,
             'issue_date': invoice.issue_date.strftime('%d/%m/%Y'),
             'due_date': invoice.due_date.strftime('%d/%m/%Y'),
-            'subtotal': invoice.subtotal,
-            'tax_rate': invoice.tax_rate,
-            'tax_amount': invoice.tax_amount,
+            'days_overdue': days_overdue,
             'total': invoice.total,
-            'notes': invoice.notes,
             'freelance_name': invoice.user.get_full_name() or invoice.user.username,
             'freelance_email': invoice.user.email,
         })
         
         # Crée l'email
-        subject = f'Facture {invoice.invoice_number} - {invoice.client.name}'
+        subject = f'⚠️ Relance - Facture {invoice.invoice_number} en attente de paiement'
+        
+        # Crée une connexion avec timeout
+        from django.core.mail import get_connection
+        connection = get_connection(
+            timeout=30
+        )
         
         email = EmailMessage(
             subject=subject,
@@ -122,40 +80,21 @@ def send_invoice_email_task(self, invoice_id):
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[invoice.client.email],
             reply_to=[invoice.user.email],
+            connection=connection
         )
         
         email.content_subtype = 'html'
-        
-        # Attache le PDF
-        email.attach(
-            f'facture_{invoice.invoice_number}.pdf',
-            pdf_file,
-            'application/pdf'
-        )
-        
-        print(f"📤 [CELERY] Envoi email...")
-        
-        # Envoie l'email
         email.send(fail_silently=False)
         
-        print(f"✅ [CELERY] Email envoyé avec succès pour facture {invoice.invoice_number}")
+        print(f"✅ Relance envoyée pour facture {invoice.invoice_number}")
         
-        return f"Email envoyé pour facture {invoice.invoice_number}"
-        
-    except Invoice.DoesNotExist:
-        print(f"❌ [CELERY] Facture {invoice_id} introuvable")
-        return f"Facture {invoice_id} introuvable"
+        return True
         
     except Exception as e:
-        print(f"❌ [CELERY] Erreur : {e}")
+        print(f"❌ Erreur lors de l'envoi de la relance : {e}")
         traceback.print_exc()
-        
-        # Réessaie jusqu'à 3 fois avec délai exponentiel
-        raise self.retry(exc=e, countdown=60 * (2 ** self.request.retries))
+        return False
 
-
-@shared_task(bind=True, max_retries=3)
-def send_reminder_email_task(self, invoice_id):
     """
     Tâche Celery pour envoyer un email de relance en arrière-plan.
     """
