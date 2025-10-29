@@ -361,6 +361,10 @@ class CustomLoginView(LoginView):
         """
         user = self.request.user
         
+        # Vérifie que l'user est bien chargé
+        if not user or not user.is_authenticated:
+            return reverse_lazy('core:dashboard')
+        
         # Si admin → dashboard admin
         if user.is_staff or user.is_superuser:
             return reverse_lazy('admin_dashboard')
@@ -368,7 +372,7 @@ class CustomLoginView(LoginView):
         # Sinon → dashboard user
         return reverse_lazy('core:dashboard')
     
-
+    
 from django.contrib.auth import logout
 
 
