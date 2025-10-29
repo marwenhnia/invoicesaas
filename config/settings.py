@@ -221,7 +221,7 @@ else:
 # ============================================
 
 if os.environ.get('RENDER'):
-    DEBUG = True
+    DEBUG = False
     
     # Allowed hosts
     ALLOWED_HOSTS = [
