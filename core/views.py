@@ -592,7 +592,7 @@ def admin_dashboard(request):
     """
     # Statistiques utilisateurs
     total_users = User.objects.count()
-    premium_users = UserProfile.objects.filter(subscription_status='active').count()
+    premium_users = UserProfile.objects.filter(is_premium=True).count()
     free_users = total_users - premium_users
     
     # Statistiques financières
@@ -652,11 +652,11 @@ def admin_users_list(request):
     search = request.GET.get('search', '')
     
     if status_filter == 'premium':
-        users = users.filter(profile__subscription_status='active')
+        users = users.filter(profile__is_premium=True)
     elif status_filter == 'free':
-        users = users.exclude(profile__subscription_status='active')
+        users = users.filter(profile__is_premium=False, profile__trial_end_date__lt=timezone.now())
     elif status_filter == 'trial':
-        users = users.filter(profile__subscription_status='trialing')
+        users = users.filter(profile__is_premium=False, profile__trial_end_date__gte=timezone.now())
     
     if search:
         users = users.filter(
@@ -715,16 +715,14 @@ def admin_toggle_subscription(request, user_id):
     user = get_object_or_404(User, id=user_id)
     profile = user.profile
     
-    if profile.subscription_status == 'active':
-        profile.subscription_status = 'inactive'
+    if profile.is_premium:
+        profile.is_premium = False
         profile.stripe_subscription_id = None
         profile.save()
-        messages.success(request, f"✅ {user.username} est maintenant en plan Free.")
     else:
-        profile.subscription_status = 'active'
+        profile.is_premium = True
         profile.subscription_start_date = timezone.now()
         profile.save()
-        messages.success(request, f"✅ {user.username} est maintenant en plan Premium.")
     
     return redirect('admin_user_detail', user_id=user_id)
 
