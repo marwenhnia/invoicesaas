@@ -17,7 +17,7 @@ import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.contrib.admin.views.decorators import staff_member_required
+from core.decorators import admin_required
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
@@ -571,7 +571,7 @@ def sitemap_xml(request):
 
 
 
-@staff_member_required
+@admin_required
 def admin_dashboard(request):
     """
     Dashboard admin avec statistiques globales.
@@ -639,7 +639,7 @@ def admin_dashboard(request):
     return render(request, 'admin/dashboard.html', context)
 
 
-@staff_member_required
+@admin_required
 def admin_users_list(request):
     """
     Liste de tous les utilisateurs avec filtres.
@@ -679,7 +679,7 @@ def admin_users_list(request):
     return render(request, 'admin/users_list.html', context)
 
 
-@staff_member_required
+@admin_required
 def admin_user_detail(request, user_id):
     """
     Détails d'un utilisateur spécifique.
@@ -712,7 +712,7 @@ def admin_user_detail(request, user_id):
     return render(request, 'admin/user_detail.html', context)
 
 
-@staff_member_required
+@admin_required
 def admin_toggle_subscription(request, user_id):
     """
     Active/désactive manuellement l'abonnement d'un utilisateur.
