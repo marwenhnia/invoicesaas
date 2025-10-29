@@ -21,6 +21,12 @@ class BrevoAPIBackend(BaseEmailBackend):
         if not email_messages:
             return 0
         
+        print(f"🔑 [BACKEND] BREVO_API_KEY accessible : {bool(settings.BREVO_API_KEY)}")
+        if settings.BREVO_API_KEY:
+            print(f"🔑 [BACKEND] Clé commence par : {settings.BREVO_API_KEY[:15]}...")
+        else:
+            print(f"❌ [BACKEND] settings.BREVO_API_KEY est VIDE !")
+        return 0
         # Configure l'API Brevo avec la clé
         configuration = sib_api_v3_sdk.Configuration()
         configuration.api_key['api-key'] = settings.BREVO_API_KEY

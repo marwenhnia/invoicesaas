@@ -145,6 +145,14 @@ if os.environ.get('RENDER'):
     # PRODUCTION : API Brevo (contourne le blocage SMTP)
     EMAIL_BACKEND = 'core.email_backend.BrevoAPIBackend'
     BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
+    
+    # DEBUG : Affiche si la clé est bien chargée
+    print(f"🔑 [SETTINGS] BREVO_API_KEY définie : {bool(BREVO_API_KEY)}")
+    if BREVO_API_KEY:
+        print(f"🔑 [SETTINGS] BREVO_API_KEY commence par : {BREVO_API_KEY[:15]}...")
+    else:
+        print(f"❌ [SETTINGS] BREVO_API_KEY est VIDE !")
+    
     DEFAULT_FROM_EMAIL = 'FactureSnap <info@myjunkfuel.com>' 
 else:
     # LOCAL : Gmail SMTP
