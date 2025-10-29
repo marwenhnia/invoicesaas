@@ -8,6 +8,7 @@ from datetime import date
 from django.conf import settings
 from weasyprint import HTML
 import traceback
+import gc
 
 
 @shared_task
@@ -86,7 +87,15 @@ def send_invoice_email_task(self, invoice_id):
         
         # Génère le PDF
         html_string = render_to_string('invoices/invoice_pdf.html', {'invoice': invoice})
-        pdf_file = HTML(string=html_string).write_pdf()
+        
+        gc.collect()
+        from weasyprint import HTML, CSS
+        pdf_file = HTML(string=html_string).write_pdf(
+            optimize_images=True,  # Optimise les images
+            uncompressed_pdf=False  # Compresse le PDF
+        )
+        del html_string
+        gc.collect()
         print(f"✅ [CELERY] PDF généré")
         
         # Prépare l'email HTML
