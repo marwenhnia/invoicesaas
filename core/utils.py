@@ -7,8 +7,13 @@ from .models import Invoice
 def send_invoice_email(invoice):
     """
     Envoie la facture par email au client avec le PDF en pièce jointe.
+    L'email part de FactureSnap mais le Reply-To est l'email de l'utilisateur.
     Retourne True si succès, False sinon.
     """
+    from django.core.mail import EmailMessage
+    from django.template.loader import render_to_string
+    from django.conf import settings
+    
     try:
         # Génère le PDF
         html_string = render_to_string('invoices/invoice_pdf.html', {'invoice': invoice})
@@ -35,8 +40,9 @@ def send_invoice_email(invoice):
         email = EmailMessage(
             subject=subject,
             body=email_html,
+            from_email=settings.DEFAULT_FROM_EMAIL,  # no-reply@facturesnap.fr
             to=[invoice.client.email],
-            reply_to=[invoice.user.email],
+            reply_to=[invoice.user.email],  # ← L'email de l'utilisateur
         )
         
         email.content_subtype = 'html'  # Email en HTML
@@ -54,5 +60,5 @@ def send_invoice_email(invoice):
         return True
         
     except Exception as e:
-        print(f"Erreur lors de l'envoi de l'email : {e}")
+        print(f"❌ Erreur lors de l'envoi de l'email : {e}")
         return False

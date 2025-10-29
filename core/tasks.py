@@ -40,7 +40,14 @@ def check_overdue_invoices():
 def send_reminder_email(invoice):
     """
     Envoie un email de relance pour une facture en retard.
+    L'email part de FactureSnap mais le Reply-To est l'email de l'utilisateur.
+    Retourne True si succès, False sinon.
     """
+    from django.core.mail import EmailMessage
+    from django.template.loader import render_to_string
+    from django.conf import settings
+    from datetime import date
+    
     try:
         # Calcule le nombre de jours de retard
         days_overdue = (date.today() - invoice.due_date).days
@@ -63,20 +70,20 @@ def send_reminder_email(invoice):
         email = EmailMessage(
             subject=subject,
             body=email_html,
+            from_email=settings.DEFAULT_FROM_EMAIL,  # no-reply@facturesnap.fr
             to=[invoice.client.email],
-            reply_to=[invoice.user.email],
+            reply_to=[invoice.user.email],  # ← L'email de l'utilisateur
         )
         
-        email.content_subtype = 'html'
+        email.content_subtype = 'html'  # Email en HTML
         email.send(fail_silently=False)
         
         return True
         
     except Exception as e:
-        print(f"Erreur lors de l'envoi de la relance : {e}")
+        print(f"❌ Erreur lors de l'envoi de la relance : {e}")
         return False
-
-
+    
 @shared_task
 def send_invoice_async(invoice_id):
     """
