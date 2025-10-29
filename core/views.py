@@ -581,8 +581,6 @@ def sitemap_xml(request):
     xml = render_to_string('sitemap.xml')
     return HttpResponse(xml, content_type="application/xml")
 
-
-
 @admin_required
 def admin_dashboard(request):
     """
@@ -594,9 +592,7 @@ def admin_dashboard(request):
     free_users = total_users - premium_users
     
     # Statistiques financières
-    total_revenue = UserProfile.objects.filter(
-        subscription_status='active'
-    ).count() * 9  # 9€ par mois par utilisateur premium
+    total_revenue = premium_users * 9
     
     # Statistiques factures
     total_invoices = Invoice.objects.count()
@@ -613,22 +609,6 @@ def admin_dashboard(request):
         invoice__created_at__gte=last_month
     ).distinct().count()
     
-    # Revenus par mois (12 derniers mois)
-    monthly_revenue = []
-    for i in range(12, 0, -1):
-        month_start = timezone.now() - timedelta(days=30*i)
-        month_end = timezone.now() - timedelta(days=30*(i-1))
-        
-        premium_count = UserProfile.objects.filter(
-            subscription_status='active',
-            subscription_start_date__lte=month_end
-        ).count()
-        
-        monthly_revenue.append({
-            'month': month_start.strftime('%b %Y'),
-            'revenue': premium_count * 9
-        })
-    
     # Top 5 utilisateurs (par nombre de factures)
     top_users = User.objects.annotate(
         invoice_count=Count('invoice')
@@ -644,7 +624,6 @@ def admin_dashboard(request):
         'unpaid_invoices': unpaid_invoices,
         'new_users_week': new_users_week,
         'active_users': active_users,
-        'monthly_revenue': monthly_revenue,
         'top_users': top_users,
     }
     
@@ -657,7 +636,7 @@ def admin_users_list(request):
     Liste de tous les utilisateurs avec filtres.
     """
     # Récupère tous les utilisateurs
-    users = User.objects.select_related('userprofile').annotate(
+    users = User.objects.select_related('profile').annotate(
         invoice_count=Count('invoice'),
         total_revenue=Count('invoice', filter=Q(invoice__status='paid'))
     ).order_by('-date_joined')
@@ -667,11 +646,11 @@ def admin_users_list(request):
     search = request.GET.get('search', '')
     
     if status_filter == 'premium':
-        users = users.filter(userprofile__subscription_status='active')
+        users = users.filter(profile__subscription_status='active')
     elif status_filter == 'free':
-        users = users.exclude(userprofile__subscription_status='active')
+        users = users.exclude(profile__subscription_status='active')
     elif status_filter == 'trial':
-        users = users.filter(userprofile__subscription_status='trialing')
+        users = users.filter(profile__subscription_status='trialing')
     
     if search:
         users = users.filter(
@@ -690,14 +669,13 @@ def admin_users_list(request):
     
     return render(request, 'admin/users_list.html', context)
 
-
 @admin_required
 def admin_user_detail(request, user_id):
     """
     Détails d'un utilisateur spécifique.
     """
     user = get_object_or_404(User, id=user_id)
-    profile = user.userprofile
+    profile = user.profile
     
     # Statistiques de l'utilisateur
     invoices = Invoice.objects.filter(user=user).order_by('-created_at')
@@ -707,18 +685,14 @@ def admin_user_detail(request, user_id):
     paid_invoices = invoices.filter(status='paid').count()
     unpaid_invoices = invoices.filter(status='unpaid').count()
     
-    # Revenus générés (fictif, basé sur nombre de factures payées)
-    total_generated = paid_invoices * 100  # Exemple
-    
     context = {
         'user_obj': user,
         'profile': profile,
-        'invoices': invoices[:10],  # 10 dernières factures
+        'invoices': invoices[:10],
         'clients': clients,
         'total_invoices': total_invoices,
         'paid_invoices': paid_invoices,
         'unpaid_invoices': unpaid_invoices,
-        'total_generated': total_generated,
     }
     
     return render(request, 'admin/user_detail.html', context)
@@ -733,24 +707,20 @@ def admin_toggle_subscription(request, user_id):
         return redirect('admin_users_list')
     
     user = get_object_or_404(User, id=user_id)
-    profile = user.userprofile
+    profile = user.profile
     
     if profile.subscription_status == 'active':
-        # Passer en Free
         profile.subscription_status = 'inactive'
         profile.stripe_subscription_id = None
         profile.save()
         messages.success(request, f"✅ {user.username} est maintenant en plan Free.")
     else:
-        # Passer en Premium (manuellement)
         profile.subscription_status = 'active'
         profile.subscription_start_date = timezone.now()
         profile.save()
         messages.success(request, f"✅ {user.username} est maintenant en plan Premium.")
     
     return redirect('admin_user_detail', user_id=user_id)
-
-
 
 def create_superuser_endpoint(request):
     """
