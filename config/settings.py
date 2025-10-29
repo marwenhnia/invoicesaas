@@ -85,25 +85,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 USE_SQLITE = config('USE_SQLITE', default=False, cast=bool)
 
 
-if USE_SQLITE:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DATABASE_NAME'),
-            'USER': config('DATABASE_USER'),
-            'PASSWORD': config('DATABASE_PASSWORD'),
-            'HOST': config('DATABASE_HOST'),
-            'PORT': config('DATABASE_PORT'),
-        }
-    }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -186,8 +167,40 @@ STRIPE_PRICE_ID = config('STRIPE_PRICE_ID', default='')
 # URL de base pour les webhooks
 SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')
 
+
+if os.environ.get('RENDER'):
+    # Production : PostgreSQL via Render
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Local : SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
+
+
+# ============================================
+# PRODUCTION SETTINGS (Render.com)
+# ============================================
+
 if os.environ.get('RENDER'):
     DEBUG = False
+    
+    # Allowed hosts
+    ALLOWED_HOSTS = [
+        'facturesnap.fr',
+        'www.facturesnap.fr',
+        '.onrender.com',
+    ]
     
     # Security
     SECURE_SSL_REDIRECT = True
@@ -197,24 +210,9 @@ if os.environ.get('RENDER'):
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # Allowed hosts
-    ALLOWED_HOSTS = [
-        'facturesnap.fr',
-        'www.facturesnap.fr',
-        '.onrender.com',
-    ]
-    
-    # Database
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-    
-    # Static files
+    # Static files (WhiteNoise)
     STATIC_ROOT = BASE_DIR / 'staticfiles'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     
-    # WhiteNoise
+    # WhiteNoise middleware
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
