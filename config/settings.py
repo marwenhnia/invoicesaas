@@ -145,7 +145,7 @@ if os.environ.get('RENDER'):
     # PRODUCTION : API Brevo (contourne le blocage SMTP)
     EMAIL_BACKEND = 'core.email_backend.BrevoAPIBackend'
     BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
-    DEFAULT_FROM_EMAIL = f"FactureSnap <{os.environ.get('BREVO_SMTP_USER', 'info@myjunkfuel.com')}>"
+    DEFAULT_FROM_EMAIL = 'FactureSnap <info@myjunkfuel.com>' 
 else:
     # LOCAL : Gmail SMTP
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
