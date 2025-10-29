@@ -614,9 +614,11 @@ def admin_dashboard(request):
     ).distinct().count()
     
     # Top 5 utilisateurs (par nombre de factures)
-    top_users = User.objects.annotate(
+    top_users = User.objects.select_related('profile').annotate(
         invoice_count=Count('invoice')
     ).order_by('-invoice_count')[:5]
+
+    
     
     context = {
         'total_users': total_users,
