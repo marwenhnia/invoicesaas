@@ -158,13 +158,24 @@ else:
     DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
 
 # Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+if os.environ.get('RENDER'):
+    # Production : Redis sur Render
+    CELERY_BROKER_URL = os.environ.get('REDIS_URL')
+    CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL')
+else:
+    # Local : Redis local
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Timeout pour les tâches (important !)
+CELERY_TASK_TIME_LIMIT = 300  # 5 minutes max par tâche
+CELERY_TASK_SOFT_TIME_LIMIT = 240  # Avertissement à 4 minutes
 
 # Ajout de django_celery_beat dans INSTALLED_APPS
 
