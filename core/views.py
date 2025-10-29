@@ -23,6 +23,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 import os
 stripe.api_key = settings.STRIPE_SECRET_KEY
+from django.urls import reverse_lazy
 
 @login_required
 def dashboard(request):
@@ -348,13 +349,24 @@ def signup_view(request):
     return render(request, 'auth/signup.html', {'form': form})
 
 class CustomLoginView(LoginView):
-    """Vue de connexion personnalisée"""
-    form_class = LoginForm
-    template_name = 'auth/login.html'
-    redirect_authenticated_user = True
+    """
+    Vue de login personnalisée avec redirection intelligente.
+    """
+    template_name = 'registration/login.html'
     
     def get_success_url(self):
-        return reverse('core:dashboard')
+        """
+        Redirige les admin vers /admin-dashboard/
+        et les users normaux vers /app/
+        """
+        user = self.request.user
+        
+        # Si admin → dashboard admin
+        if user.is_staff or user.is_superuser:
+            return reverse_lazy('admin_dashboard')
+        
+        # Sinon → dashboard user
+        return reverse_lazy('core:dashboard')
     
 
 from django.contrib.auth import logout
