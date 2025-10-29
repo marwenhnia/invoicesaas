@@ -111,11 +111,11 @@
                         </td>
                         
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if user.userprofile.subscription_status == 'active' %}
+                            {% if user.profile.subscription_status == 'active' %}
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     ✅ Premium
                                 </span>
-                            {% elif user.userprofile.subscription_status == 'trialing' %}
+                            {% elif user.profile.subscription_status == 'trialing' %}
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                     🔄 Essai
                                 </span>
