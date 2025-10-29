@@ -111,7 +111,7 @@
             </p>
         </div>
     </footer>
-    {% if user.is_authenticated and not user.profile.is_premium and user.profile.is_trial_active %}
+    {% if user.is_authenticated and user.profile and not user.profile.is_premium and user.profile.is_trial_active %}
     {% if user.profile.minutes_left_in_trial <= 5 %}
     <div id="trial-warning" class="fixed bottom-4 right-4 bg-yellow-50 border-l-4 border-yellow-400 p-6 shadow-2xl rounded-lg max-w-md z-50 animate-pulse">
         <div class="flex items-start">
@@ -155,7 +155,7 @@
         </p>
     </div>
 <!-- Compte à rebours en temps réel -->
-{% if user.is_authenticated and not user.profile.is_premium %}
+{% if user.is_authenticated and user.profile and not user.profile.is_premium and user.profile.trial_end_date %}
 <script>
     // Temps de fin d'essai (timestamp en millisecondes)
     const trialEndTime = new Date("{{ user.profile.trial_end_date|date:'c' }}").getTime();
